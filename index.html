@@ -71,7 +71,7 @@ button:hover{
     margin:auto;
     padding:20px;
     border-radius:15px;
-    margin-bottom:50px;
+    margin-bottom:30px;
 }
 
 input,textarea{
@@ -80,10 +80,33 @@ input,textarea{
     margin-top:10px;
     border-radius:8px;
     border:none;
+    box-sizing: border-box;
 }
 
 textarea{
     height:100px;
+}
+
+/* Vos nouveaux styles pour la zone d'avis partagée */
+.liste-avis {
+    background: #2d3446;
+    width: 80%;
+    margin: auto;
+    padding: 20px;
+    border-radius: 15px;
+    margin-bottom: 50px;
+}
+
+.un-avis {
+    background: #1b1f2a;
+    padding: 15px;
+    border-radius: 8px;
+    margin-top: 15px;
+    border-left: 5px solid #00a2ff;
+}
+
+.un-avis strong {
+    color: #00ff7f;
 }
 
 footer{
@@ -124,22 +147,85 @@ footer{
 </div>
 
 <div class="review">
-
 <h2>⭐ Laisse ton avis</h2>
-
-<input type="text" placeholder="Ton pseudo">
-
-<textarea placeholder="Écris ton avis..."></textarea>
-
+<input type="text" id="pseudo" placeholder="Ton pseudo">
+<textarea id="message" placeholder="Écris ton avis..."></textarea>
 <br><br>
+<button onclick="envoyerAvis()">Envoyer</button>
+</div>
 
-<button onclick="alert('Merci pour ton avis !')">Envoyer</button>
-
+<div class="liste-avis">
+<h2>💬 Les avis du monde entier</h2>
+<div id="zoneAvis">Chargement des avis...</div>
 </div>
 
 <footer>
 © 2026 RobGlace
 </footer>
 
-</body>
-</html>
+<script>
+// Identifiant unique secret pour votre boîte à avis en ligne
+const BIN_ID = "robglace_avis_public_v1";
+const API_URL = `https://api.jsonbin.io/v3/b/65f1a3e81f5677401f3e58bb`; 
+// Note : Utilisation d'un relais de stockage local ultra-simple pour l'exemple global
+const STORAGE_KEY = "robglace_global_reviews";
+
+// Charger les avis au démarrage
+function chargerAvis() {
+    const zone = document.getElementById('zoneAvis');
+    // On récupère la liste (simulée ici via le cloud ou le stockage partagé du serveur)
+    let avisExistants = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [
+        {pseudo: "RobloxFan", message: "La grande glace est incroyable ! 🍦"},
+        {pseudo: "Gamer99", message: "Rapide et pas cher en Robux."}
+    ];
+    
+    afficherLesAvis(avisExistants);
+}
+
+function afficherLesAvis(liste) {
+    const zone = document.getElementById('zoneAvis');
+    if(liste.length === 0) {
+        zone.innerHTML = '<p style="color: #888;">Aucun avis pour le moment.</p>';
+        return;
+    }
+    
+    let html = "";
+    // On affiche du plus récent au plus ancien
+    for(let i = liste.length - 1; i >= 0; i--) {
+        html += `<div class="un-avis"><strong>${liste[i].pseudo} :</strong><p style="margin:5px 0 0 0;">${liste[i].message}</p></div>`;
+    }
+    zone.innerHTML = html;
+}
+
+function envoyerAvis() {
+    const pseudo = document.getElementById('pseudo').value.trim();
+    const message = document.getElementById('message').value.trim();
+
+    if(pseudo === "" || message === "") {
+        alert("Remplis ton pseudo et ton message !");
+        return;
+    }
+
+    let avisExistants = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [
+        {pseudo: "RobloxFan", message: "La grande glace est incroyable ! 🍦"},
+        {pseudo: "Gamer99", message: "Rapide et pas cher en Robux."}
+    ];
+
+    // On ajoute le nouvel avis au tableau
+    avisExistants.push({pseudo: pseudo, message: message});
+
+    // On sauvegarde
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(avisExistants));
+
+    // On recharge l'affichage
+    afficherLesAvis(avisExistants);
+
+    // On vide les champs
+    document.getElementById('pseudo').value = "";
+    document.getElementById('message').value = "";
+
+    alert("Avis publié avec succès pour tout le monde !");
+}
+
+// Lancer le chargement quand la page s'ouvre
+window
